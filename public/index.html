@@ -149,7 +149,7 @@
 
     .filter-row {
       display: grid;
-      grid-template-columns: 1fr 250px auto;
+      grid-template-columns: 1fr 210px 170px 190px auto;
       gap: 12px;
     }
 
@@ -412,10 +412,12 @@
           <strong id="totalAnime">0</strong>
           <span>Total Anime</span>
         </div>
+
         <div class="stat-card">
           <strong id="watchedAnime">0</strong>
           <span>Sudah Ditonton</span>
         </div>
+
         <div class="stat-card">
           <strong id="unwatchedAnime">0</strong>
           <span>Belum Ditonton</span>
@@ -441,6 +443,18 @@
 
         <select id="genreFilter" class="genre-select">
           <option value="all">Semua Genre</option>
+        </select>
+
+        <select id="typeFilter" class="genre-select">
+          <option value="all">Semua Type</option>
+        </select>
+
+        <select id="sortFilter" class="genre-select">
+          <option value="title-asc">Judul A-Z</option>
+          <option value="rating-desc">Rating Tertinggi</option>
+          <option value="rating-asc">Rating Terendah</option>
+          <option value="year-desc">Tahun Terbaru</option>
+          <option value="year-asc">Tahun Terlama</option>
         </select>
 
         <button id="refreshBtn" class="refresh-btn">Reset Cache</button>

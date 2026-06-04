@@ -3,6 +3,8 @@ const statusArea = document.getElementById("statusArea");
 
 const searchInput = document.getElementById("searchInput");
 const genreFilter = document.getElementById("genreFilter");
+const typeFilter = document.getElementById("typeFilter");
+const sortFilter = document.getElementById("sortFilter");
 const refreshBtn = document.getElementById("refreshBtn");
 
 const totalAnime = document.getElementById("totalAnime");
@@ -32,6 +34,7 @@ async function loadAnime() {
     unwatchedAnime.textContent = result.unwatchedTotal || 0;
 
     buildGenreFilter(animeData);
+    buildTypeFilter(animeData);
     applyFilters();
 
     if (animeData.length === 0) {
@@ -69,11 +72,34 @@ function buildGenreFilter(data) {
     });
 }
 
+function buildTypeFilter(data) {
+  const types = new Set();
+
+  data.forEach((anime) => {
+    if (anime.type) {
+      types.add(anime.type);
+    }
+  });
+
+  typeFilter.innerHTML = `<option value="all">Semua Type</option>`;
+
+  Array.from(types)
+    .sort()
+    .forEach((type) => {
+      const option = document.createElement("option");
+      option.value = type;
+      option.textContent = type;
+      typeFilter.appendChild(option);
+    });
+}
+
 function applyFilters() {
   const keyword = searchInput.value.toLowerCase().trim();
   const selectedGenre = genreFilter.value;
+  const selectedType = typeFilter.value;
+  const selectedSort = sortFilter.value;
 
-  const filtered = animeData.filter((anime) => {
+  let filtered = animeData.filter((anime) => {
     const searchableText = [
       anime.title,
       anime.titleEnglish,
@@ -90,12 +116,51 @@ function applyFilters() {
       selectedGenre === "all" ||
       (Array.isArray(anime.genres) && anime.genres.includes(selectedGenre));
 
+    const matchType = selectedType === "all" || anime.type === selectedType;
+
     const matchStatus = activeStatus === "all" || anime.status === activeStatus;
 
-    return matchSearch && matchGenre && matchStatus;
+    return matchSearch && matchGenre && matchType && matchStatus;
   });
 
+  filtered = sortAnimeList(filtered, selectedSort);
+
   renderAnime(filtered);
+}
+
+function sortAnimeList(data, sortMode) {
+  const sorted = [...data];
+
+  sorted.sort((a, b) => {
+    const titleA = a.title || a.folderName || "";
+    const titleB = b.title || b.folderName || "";
+
+    const scoreA = Number(a.score) || 0;
+    const scoreB = Number(b.score) || 0;
+
+    const yearA = Number(a.year) || 0;
+    const yearB = Number(b.year) || 0;
+
+    switch (sortMode) {
+      case "rating-desc":
+        return scoreB - scoreA;
+
+      case "rating-asc":
+        return scoreA - scoreB;
+
+      case "year-desc":
+        return yearB - yearA;
+
+      case "year-asc":
+        return yearA - yearB;
+
+      case "title-asc":
+      default:
+        return titleA.localeCompare(titleB);
+    }
+  });
+
+  return sorted;
 }
 
 function renderAnime(data) {
@@ -264,6 +329,8 @@ tabButtons.forEach((button) => {
 
 searchInput.addEventListener("input", applyFilters);
 genreFilter.addEventListener("change", applyFilters);
+typeFilter.addEventListener("change", applyFilters);
+sortFilter.addEventListener("change", applyFilters);
 refreshBtn.addEventListener("click", resetCache);
 
 loadAnime();
